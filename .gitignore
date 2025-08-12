@@ -1,11 +1,3 @@
-# Ignorar dependências
-node_modules/
-
-# Ignorar arquivos de build
-dist/
-
-# Ignorar configurações do VS Code
-.vscode/
-
-# Ignorar variáveis de ambiente
-.env
+node_modules
+package-lock.json
+dist
