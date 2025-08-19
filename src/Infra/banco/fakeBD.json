@@ -1,0 +1,60 @@
+{
+  "lastUsuarioId": 2,
+  "usuarios": [
+    {
+      "nome": "Admin",
+      "email": "admin@empresa.com",
+      "papel": "admin",
+      "senhaHash": "$2b$10$.CMiv00seUn52jTRMJ67Ie6gt6R0q8E9ieozaTKOv2A.r6oCT6ngy",
+      "id": 1,
+      "criadoEm": "2025-01-01T12:00:00.000Z"
+    },
+    {
+      "nome": "Admin",
+      "email": "ednaldo@elixsistemas.com.br",
+      "papel": "admin",
+      "senhaHash": "$2b$10$.CMiv00seUn52jTRMJ67Ie6gt6R0q8E9ieozaTKOv2A.r6oCT6ngy",
+      "id": 2,
+      "criadoEm": "2025-08-18T23:50:10.758Z"
+    }
+  ],
+  "lastPessoaId": 2,
+  "pessoas": [
+    {
+      "tipo": "PF",
+      "nome": "João Silva",
+      "documento": "12345678901",
+      "email": "joao@email.com",
+      "telefone": "11999990000",
+      "endereco": {
+        "cep": "01001000",
+        "logradouro": "Praça da Sé",
+        "numero": "100",
+        "bairro": "Sé",
+        "cidade": "São Paulo",
+        "uf": "SP"
+      },
+      "id": 1,
+      "criadoEm": "2025-08-19T00:46:43.985Z",
+      "atualizadoEm": null
+    },
+    {
+      "tipo": "PJ",
+      "nome": "Elix Sistemas",
+      "documento": "23218182000177",
+      "email": "joao@email.com",
+      "telefone": "11999990000",
+      "endereco": {
+        "cep": "01001000",
+        "logradouro": "Praça da Sé",
+        "numero": "100",
+        "bairro": "Sé",
+        "cidade": "São Paulo",
+        "uf": "SP"
+      },
+      "id": 2,
+      "criadoEm": "2025-08-19T00:48:42.578Z",
+      "atualizadoEm": null
+    }
+  ]
+}

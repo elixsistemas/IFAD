@@ -1,33 +1,15 @@
-import express from 'express'
-import type { Request, Response } from 'express'
+import 'dotenv/config';
 
-const app = express()
-const port = 3000
+import express from "express";
+import { router } from "./Api/routers";
+import { logger } from "./Api/middlewares/logger";
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Sistema IFAD rodando com Express + TypeScript!')
-})
+const app = express();
 
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`)
-})
+app.use(express.json());
+app.use(logger);
 
-import { pessoas } from './pessoa';
+app.use(router);
 
-function retornaPessoas(){
-    return pessoas;
-}
-
-function retornaPessoasPorID(id: number){
-    return pessoas.find(user => user.id === id);
-}
-
-const pessoaID = retornaPessoasPorID(3);
-console.log(pessoaID);
-
-const pessoaDB = retornaPessoas();
-console.log(pessoaDB);
-
-console.log("Sistema IFAD Iniciado!");
-
-
+app.get("/", (_req,res)=>res.send("API OK"));
+app.listen(3000, () => console.log("🚀 http://localhost:3000"));
