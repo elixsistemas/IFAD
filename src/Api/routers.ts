@@ -9,7 +9,7 @@ export const router = Router();
 router.post("/auth/login", UsuariosController.login);
 
 // usuários
-router.post("/usuarios", UsuariosController.criar); // pode deixar público pra criar o 1º admin
+router.post("/usuarios", UsuariosController.criar); 
 router.get("/usuarios", autenticar, exigirPapel("admin"), UsuariosController.listar);
 router.get("/usuarios/:id", autenticar, UsuariosController.buscar);
 router.put("/usuarios/:id", autenticar, UsuariosController.atualizar);
