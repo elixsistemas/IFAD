@@ -4,9 +4,9 @@
     "lib": ["ES2020"],
     "module": "commonjs",
     "moduleResolution": "node",
-  
+
     // Pastas
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
 
     // Qualidade / DX
@@ -18,19 +18,19 @@
     "noEmitOnError": true,
     "sourceMap": true,
 
-    // Tipos (mantenha só os necessários)
-    "types": ["node"],
+    // Tipos
+    "types": ["node", "jest"],
 
-    // Úteis para seu projeto
-    "resolveJsonModule": true,        
+    // Úteis
+    "resolveJsonModule": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,
 
-    // Build melhorzinho (opcional)
-    "declaration": false,           
+    // Build incremental
+    "declaration": false,
     "declarationMap": false,
     "incremental": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "include": ["src/**/*.ts", "__tests__/**/*.ts"],
+  "exclude": ["node_modules"]
 }

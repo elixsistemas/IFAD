@@ -200,6 +200,81 @@ curl -X POST http://localhost:3000/pessoas   -H "Authorization: Bearer $TOKEN" -
 
 ---
 
+## 🧪 Testes automatizados
+
+O projeto usa **Jest + ts-jest** para testes unitários e de integração.
+
+### Rodar testes
+```bash
+npm test
+```
+> ifad@1.0.0 test
+> jest
+
+ PASS  __tests__/pessoa.schema.test.ts
+  EsquemaPessoa
+    √ valida PF com CEP de 8 dígitos após normalização (8 ms)
+    √ recusa CEP inválido (2 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        3.516 s, estimated 4 s
+Ran all test suites.
+
+```
+
+Exemplo de teste de validação (`__tests__/pessoa.schema.test.ts`):
+
+```ts
+import { EsquemaPessoa } from "../src/dominio/esquemas/PessoaSchema";
+
+describe("EsquemaPessoa", () => {
+  it("valida PF com CEP de 8 dígitos após normalização", () => {
+    const result = EsquemaPessoa.safeParse({
+      tipo: "PF",
+      nome: "Maria Silva",
+      documento: "12345678901",
+      email: "maria@email.com",
+      endereco: { cep: "01001000", logradouro: "Praça da Sé", numero: "1", bairro: "Sé", cidade: "SP", uf: "SP" }
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("recusa CEP inválido", () => {
+    const result = EsquemaPessoa.safeParse({
+      tipo: "PF",
+      nome: "João",
+      documento: "12345678901",
+      email: "joao@email.com",
+      endereco: { cep: "123", logradouro: "Rua X", numero: "10", bairro: "Centro", cidade: "SP", uf: "SP" }
+    });
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+---
+
+## ⚙️ Build e Configuração TypeScript
+
+- `tsconfig.json`: usado pelo Jest/IDE (inclui `src` e `__tests__`)
+- `tsconfig.build.json`: usado no build de produção (compila apenas `src` → `dist/`)
+
+Scripts principais no `package.json`:
+
+```json
+"scripts": {
+  "dev": "ts-node-dev --respawn --transpile-only --poll src/main.ts",
+  "build": "tsc -p tsconfig.build.json",
+  "start": "node dist/main.js",
+  "test": "jest",
+  "test:cov": "jest --coverage"
+}
+```
+
+---
+
 ## Checklist de requisitos
 
 - [x] Node + TypeScript (API REST)
@@ -210,3 +285,5 @@ curl -X POST http://localhost:3000/pessoas   -H "Authorization: Bearer $TOKEN" -
 - [x] Persistência **`fakeBD.json`** (criar/listar/atualizar/remover)
 - [x] Rotas e exemplos documentados (README + Postman)
 - [x] Tratamento de erros padronizado
+- [x] Testes unitários/integração com Jest + ts-jest
+- [x] Configuração separada de build (`tsconfig.build.json`)
