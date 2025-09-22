@@ -5,11 +5,9 @@
     "module": "commonjs",
     "moduleResolution": "node",
 
-    // Pastas
     "rootDir": ".",
     "outDir": "./dist",
 
-    // Qualidade / DX
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -18,15 +16,12 @@
     "noEmitOnError": true,
     "sourceMap": true,
 
-    // Tipos
     "types": ["node", "jest"],
 
-    // Úteis
     "resolveJsonModule": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,
 
-    // Build incremental
     "declaration": false,
     "declarationMap": false,
     "incremental": true

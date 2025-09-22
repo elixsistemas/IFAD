@@ -1,31 +1,21 @@
-import fs from "fs";
-import path from "path";
-import {
-  BancoDeDados,
-  UsuarioRegistro,
-  PessoaRegistro,
-} from "./DBSchema";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-const DB_PATH = path.resolve(__dirname, "fakeBD.json");
+dotenv.config();
 
-function ensureFile() {
-  if (!fs.existsSync(DB_PATH)) {
-    const vazio: BancoDeDados = {
-      lastUsuarioId: 0,
-      usuarios: [],
-      lastPessoaId: 0,
-      pessoas: [],
-    };
-    fs.writeFileSync(DB_PATH, JSON.stringify(vazio, null, 2));
+export async function connectMongo(uri?: string): Promise<void> {
+  const mongoUri = uri || process.env.MONGO_URI;
+  if (!mongoUri) throw new Error("MONGO_URI não definida no .env");
+
+  try {
+    await mongoose.connect(mongoUri);
+    console.log("✅ Conectado ao MongoDB");
+  } catch (err) {
+    console.error("❌ Erro ao conectar no MongoDB:", err);
+    process.exit(1);
   }
 }
 
-export function carregarDB(): BancoDeDados {
-  ensureFile();
-  const raw = fs.readFileSync(DB_PATH, "utf-8");
-  return JSON.parse(raw) as BancoDeDados;
-}
-
-export function salvarDB(db: BancoDeDados) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+export async function disconnectMongo(): Promise<void> {
+  await mongoose.disconnect();
 }

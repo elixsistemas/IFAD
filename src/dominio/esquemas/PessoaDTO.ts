@@ -9,7 +9,7 @@ export const EsquemaPessoa = z.object({
   documento: z.string().transform(apenasNum),
   email: z.string().email().optional(),
   telefone: z.string().transform(apenasNum).optional(),
-  endereco: EsquemaEndereco,
+  endereco: EsquemaEndereco.optional(),
 }).superRefine((d, ctx) => {
   const len = d.documento.length;
   if (d.tipo === "PF" && len !== 11)
