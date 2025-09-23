@@ -1,44 +1,65 @@
 # IFAD API (Node + TypeScript + MongoDB)
 
-API REST com validação **Zod**, autenticação **JWT** e persistência em **MongoDB Atlas**.  
-Domínios principais: **Usuários** (`admin|user`) e **Pessoas** (PF/PJ com endereço aninhado).
+API REST construída em **Node.js + TypeScript**, utilizando:
+
+* **Express** para rotas
+* **MongoDB Atlas** com **Mongoose**
+* **JWT** para autenticação/autorização
+* **Zod** para validação
+* **Swagger (OpenAPI)** para documentação interativa
+* **Jest + Supertest** para testes automatizados
+
+Domínios: **Usuários** (`admin` | `user`) e **Pessoas** (PF/PJ com Endereço).
 
 ---
 
-## 📦 Requisitos
-- Node 18+ (ou 16 LTS)
-- npm
-- Conta e cluster no [MongoDB Atlas](https://www.mongodb.com/atlas)
+## 🚀 Tecnologias
+
+* [Node.js](https://nodejs.org/)
+* [TypeScript](https://www.typescriptlang.org/)
+* [Express](https://expressjs.com/)
+* [MongoDB Atlas](https://www.mongodb.com/atlas) + [Mongoose](https://mongoosejs.com/)
+* [Zod](https://zod.dev/) (validação de DTOs)
+* [JWT](https://jwt.io/) (autenticação e autorização)
+* [Swagger UI](https://swagger.io/tools/swagger-ui/) (`/docs`)
+* [Jest](https://jestjs.io/) + [Supertest](https://github.com/ladjs/supertest) (testes)
 
 ---
 
-## ⚙️ Configuração
+## ⚙️ Configuração do ambiente
 
 1. Crie o arquivo `.env` na raiz:
-   ```env
-   MONGO_URI=mongodb+srv://<usuario>:<senha>@cluster0.xxxxx.mongodb.net/
-   PORT=3000
-   JWT_SECRET=uma_chave_bem_secreta
-   JWT_EXPIRES=1h   # ou segundos: 3600
-   ```
+
+```env
+MONGO_URI=mongodb+srv://<usuario>:<senha>@cluster0.mongodb.net/
+PORT=3000
+JWT_SECRET=uma_chave_bem_secreta
+JWT_EXPIRES=1h
+```
 
 2. Instale dependências:
-   ```bash
-   npm i
-   ```
+
+```bash
+npm install
+```
 
 3. Rodar em desenvolvimento:
-   ```bash
-   npm run dev
-   ```
+
+```bash
+npm run dev
+```
 
 4. Build/produção:
-   ```bash
-   npm run build
-   npm start
-   ```
 
-A API sobe em [http://localhost:3000](http://localhost:3000) por padrão.
+```bash
+npm run build
+npm start
+```
+
+5. Acesse:
+
+* API: [http://localhost:3000](http://localhost:3000)
+* Swagger Docs: [http://localhost:3000/docs](http://localhost:3000/docs)
 
 ---
 
@@ -46,172 +67,150 @@ A API sobe em [http://localhost:3000](http://localhost:3000) por padrão.
 
 ```
 src/
-  Api/
-    controllers/
-      PessoasController.ts
-      UsuariosController.ts
-    middlewares/
-      auth.ts
-      errorHandler.ts
-      logger.ts
-    routers.ts
-  config/
-    jwt.ts
-  dominio/
-    esquemas/
-      PessoaDTO.ts
-      PessoaModel.ts
-      UsuarioDTO.ts
-      UsuarioModel.ts
-  Infra/
-    banco/
-      db.ts
-    repositorios/
-      PessoaRepositorio.ts
-      UsuarioRepositorio.ts
-  docs/
-    swagger.ts
-  main.ts
-types/
-  express.d.ts
+ ┣ 📂 Api/
+ ┃ ┣ 📂 controllers/   # PessoasController, UsuariosController
+ ┃ ┣ 📂 middlewares/  # autenticação, logger, errorHandler
+ ┃ ┗ 📜 routers.ts    # Rotas principais
+ ┣ 📂 dominio/
+ ┃ ┣ 📂 entidades/    # Interfaces de domínio (Pessoa, Usuario)
+ ┃ ┗ 📂 esquemas/     # DTOs (Zod) + Models (Mongoose)
+ ┣ 📂 Infra/
+ ┃ ┣ 📂 banco/        # Conexão com MongoDB
+ ┃ ┗ 📂 repositorios/ # PessoaRepositorio, UsuarioRepositorio
+ ┣ 📂 docs/           # Configuração Swagger
+ ┣ 📜 main.ts         # Ponto de entrada
+ ┗ 📜 app.ts          # Express app (útil para testes)
 ```
 
 ---
 
-## 🔑 Autenticação & Autorização
+## 🔐 Autenticação & Autorização
 
-- **Login**: `POST /auth/login` → retorna `token` (JWT) + dados do usuário.
-- Rotas protegidas exigem **header**:
-  ```
-  Authorization: Bearer <token>
-  ```
-- Algumas rotas exigem **papel** `admin` (`exigirPapel("admin")`).
-- O payload do token inclui `{ id, email, papel }`.
+* **Login**: `POST /auth/login` → retorna JWT
+* **Header obrigatório em rotas protegidas**:
+
+```
+Authorization: Bearer <token>
+```
+
+* **Papéis (roles)**:
+
+  * `admin`: pode gerenciar tudo
+  * `user`: pode apenas suas ações básicas
 
 ---
 
-## 🧾 Modelagem no MongoDB
+## 📑 Rotas principais
+
+### 🔑 Auth
+
+* `POST /auth/login` → login
+
+```json
+{ "email": "admin@email.com", "senha": "123456" }
+```
+
+Resposta:
+
+```json
+{
+  "token": "<jwt>",
+  "usuario": { "_id": "...", "nome": "Admin", "email": "admin@email.com", "papel": "admin" }
+}
+```
+
+---
+
+### 👤 Usuários
+
+* `POST /usuarios` → cria usuário
+* `GET /usuarios` → lista usuários (**apenas admin**)
+* `GET /usuarios/:id` → busca usuário por ID
+* `PATCH /usuarios/:id` → atualiza dados
+* `PUT /usuarios/:id/senha` → troca senha
+* `DELETE /usuarios/:id` → remove usuário (**admin**)
+
+---
+
+### 🧾 Pessoas
+
+* `POST /pessoas` → cria pessoa
+* `GET /pessoas` → lista pessoas (filtros `?tipo=PF|PJ&q=texto`)
+* `GET /pessoas/:id` → busca pessoa
+* `PATCH /pessoas/:id` → atualiza parcialmente
+* `DELETE /pessoas/:id` → remove (**admin**)
+
+---
+
+## 📘 Swagger
+
+A documentação interativa está disponível em:
+👉 [http://localhost:3000/docs](http://localhost:3000/docs)
+
+---
+
+## 📊 Modelagem do Banco (MongoDB)
 
 ### Coleção `usuarios`
 
-| Campo      | Tipo      | Obrigatório | Descrição                        |
-|------------|----------|-------------|----------------------------------|
-| _id        | ObjectId | Sim         | Gerado automaticamente pelo Mongo|
-| nome       | String   | Sim         | Nome completo                    |
-| email      | String   | Sim (único) | Login e identificação            |
-| senhaHash  | String   | Sim         | Senha criptografada (bcrypt)     |
-| papel      | String   | Sim         | `admin` ou `user`                |
-| criadoEm   | Date     | Sim         | Data de criação                  |
-| atualizadoEm | Date   | Não         | Última atualização               |
+| Campo     | Tipo     | Obrigatório | Descrição                         |
+| --------- | -------- | ----------- | --------------------------------- |
+| \_id      | ObjectId | Sim         | Gerado automaticamente pelo Mongo |
+| nome      | String   | Sim         | Nome completo do usuário          |
+| email     | String   | Sim         | Único (login)                     |
+| senhaHash | String   | Sim         | Hash da senha (bcrypt)            |
+| papel     | String   | Sim         | `admin` ou `user`                 |
+| criadoEm  | Date     | Sim         | Data de criação                   |
 
 ---
 
 ### Coleção `pessoas`
 
-| Campo       | Tipo      | Obrigatório | Descrição                        |
-|-------------|----------|-------------|----------------------------------|
-| _id         | ObjectId | Sim         | Gerado automaticamente pelo Mongo|
-| tipo        | String   | Sim         | `PF` ou `PJ`                     |
-| nome        | String   | Sim         | Nome/Razão Social                |
-| documento   | String   | Sim         | CPF ou CNPJ (somente dígitos)    |
-| email       | String   | Opcional    | E-mail                           |
-| telefone    | String   | Opcional    | Telefone                         |
-| endereco    | Object   | Sim         | Subdocumento com os dados abaixo |
-| criadoEm    | Date     | Sim         | Data de criação                   |
+| Campo     | Tipo     | Obrigatório | Descrição                         |
+| --------- | -------- | ----------- | --------------------------------- |
+| \_id      | ObjectId | Sim         | Gerado automaticamente pelo Mongo |
+| tipo      | String   | Sim         | `PF` ou `PJ`                      |
+| nome      | String   | Sim         | Nome/Razão Social                 |
+| documento | String   | Sim         | CPF ou CNPJ (somente dígitos)     |
+| email     | String   | Opcional    | E-mail                            |
+| telefone  | String   | Opcional    | Telefone                          |
+| endereco  | Object   | Sim         | Subdocumento com os dados abaixo  |
+| criadoEm  | Date     | Sim         | Data de criação                   |
 
-**Subdocumento `endereco`**
+#### Subdocumento `endereco`
 
-| Campo       | Tipo   | Obrigatório | Descrição                        |
-|-------------|--------|-------------|----------------------------------|
-| cep         | String | Sim         | CEP normalizado (8 dígitos)      |
-| logradouro  | String | Sim         | Nome da rua/avenida              |
-| numero      | String | Sim         | Número                           |
-| bairro      | String | Sim         | Bairro                           |
-| cidade      | String | Sim         | Cidade                           |
-| uf          | String | Sim         | Estado (sigla de 2 letras)       |
-
-**Exemplo de criação (Mongo Shell):**
-```js
-db.pessoas.insertOne({
-  tipo: "PF",
-  nome: "Maria Oliveira",
-  documento: "12345678901",
-  email: "maria@email.com",
-  telefone: "11999990000",
-  endereco: {
-    cep: "01001000",
-    logradouro: "Praça da Sé",
-    numero: "100",
-    bairro: "Sé",
-    cidade: "São Paulo",
-    uf: "SP"
-  },
-  criadoEm: new Date()
-});
-```
-
----
-
-## 🚀 Rotas Principais
-
-### Auth
-- **POST** `/auth/login` → Login e retorno de JWT.
-
-### Usuários
-- **POST** `/usuarios` → Criar usuário (sem senhaHash no retorno).
-- **GET** `/usuarios` → Listar usuários (**apenas admin**).
-- **GET** `/usuarios/:id` → Buscar usuário por ID.
-- **PATCH** `/usuarios/:id` → Atualizar dados.
-- **PUT** `/usuarios/:id/senha` → Alterar senha.
-- **DELETE** `/usuarios/:id` → Remover (**apenas admin**).
-
-### Pessoas
-- **POST** `/pessoas` → Criar pessoa.
-- **GET** `/pessoas` → Listar pessoas (com filtros `tipo` e `q`).
-- **GET** `/pessoas/:id` → Buscar pessoa por ID.
-- **PATCH** `/pessoas/:id` → Atualizar dados.
-- **DELETE** `/pessoas/:id` → Remover (**apenas admin**).
-
----
-
-## ❌ Códigos de Erro Padrão
-
-- **400**: Validação (Zod) / body inválido
-- **401**: Token ausente ou inválido
-- **403**: Acesso negado (sem permissão)
-- **404**: Recurso não encontrado
-- **204**: Operação concluída sem body (delete, troca de senha)
+| Campo      | Tipo   | Obrigatório | Descrição                   |
+| ---------- | ------ | ----------- | --------------------------- |
+| cep        | String | Sim         | CEP normalizado (8 dígitos) |
+| logradouro | String | Sim         | Nome da rua/avenida         |
+| numero     | String | Sim         | Número                      |
+| bairro     | String | Sim         | Bairro                      |
+| cidade     | String | Sim         | Cidade                      |
+| uf         | String | Sim         | Estado (sigla de 2 letras)  |
 
 ---
 
 ## 🧪 Testes Automatizados
 
-O projeto usa **Jest + ts-jest** para testes unitários e de integração.
+Rodar todos os testes:
 
-### Rodar testes
 ```bash
 npm test
 ```
 
-Exemplo de teste de validação (`__tests__/pessoa.schema.test.ts`):
+Exemplo de teste unitário:
 
 ```ts
-import { EsquemaPessoa } from "../src/dominio/esquemas/PessoaDTO";
+import { EsquemaPessoa } from "../src/dominio/esquemas/PessoaSchema";
 
 describe("EsquemaPessoa", () => {
-  it("valida PF com CEP correto", () => {
+  it("valida CPF correto", () => {
     const result = EsquemaPessoa.safeParse({
       tipo: "PF",
       nome: "Maria Silva",
       documento: "12345678901",
-      endereco: {
-        cep: "01001000",
-        logradouro: "Praça da Sé",
-        numero: "1",
-        bairro: "Sé",
-        cidade: "São Paulo",
-        uf: "SP"
-      }
+      email: "maria@email.com",
+      endereco: { cep: "01001000", logradouro: "Praça da Sé", numero: "1", bairro: "Sé", cidade: "SP", uf: "SP" }
     });
     expect(result.success).toBe(true);
   });
@@ -220,16 +219,21 @@ describe("EsquemaPessoa", () => {
 
 ---
 
-## 📋 Checklist de requisitos (rubrica)
+## ✅ Checklist da Rubrica
 
-- [x] Node + TypeScript (API REST)
-- [x] Estrutura em camadas: **Api / dominio / Infra**
-- [x] Validação com **Zod** (DTOs)
-- [x] Normalização de dados (CEP/documento/telefone)
-- [x] Autenticação **JWT** (login, autorização por papel)
-- [x] Troca de senha com verificação da senha atual
-- [x] Persistência em **MongoDB Atlas**
-- [x] Rotas documentadas com **Swagger**
-- [x] Tratamento de erros padronizado
-- [x] Testes automatizados com **Jest**
-- [x] Scripts de build (`tsconfig.build.json`)
+* [x] Schema do banco de dados da aplicação
+* [x] Modelagem em documentos (MongoDB)
+* [x] Conexão isolada + camada de repositórios
+* [x] CRUD completo via Mongoose
+* [x] Swagger documentando as rotas
+* [x] Middlewares (auth, logger, errorHandler)
+* [x] Autorização por papel (admin/user)
+* [x] Testes automatizados (mínimos implementados)
+
+---
+
+## 📌 Observações
+
+* Primeiro usuário `admin` deve ser criado via `POST /usuarios`.
+* Após isso, o fluxo padrão é login → uso do token nas demais rotas.
+* Senhas nu
